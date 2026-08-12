@@ -3,11 +3,37 @@
 <head>
     <meta charset='utf-8'>
     <title>Tarefas Acedemicas</title>
-</head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"></head>
 <body>
     <header>
         <h1>To-do Academico</h1>
     </header>
+
+    <section aria-label="Busca e Filtros">
+        <label for="pesquisar-titulo">Pesquisar Titulo</label>
+        <input id="pesquisar-titulo" type="search">
+        <fieldset>
+            <legend>Escolha o Status</legend>
+            <input type="radio" name="status" id="a-fazer">
+            <label for="a-fazer">A Fazer</label>
+            <input type="radio" name="status" id="em-andamento">
+            <label for="em-andamento">Em Andamento</label>
+            <input type="radio" name="status" id="em-revisao">
+            <label for="em-revisao">Em Revisão</label>
+            <input type="radio" name="status" id="concluido">
+            <label for="concluido">Concluído</label>
+        </fieldset>
+        <fieldset>
+            <legend>Escolha a Prioridade</legend>
+            <input type="radio" name="prioriadade" id="baixa">
+            <label for="baixa">Baixa</label>
+            <input type="radio" name="prioriadade" id="media">
+            <label for="media">Média</label>
+            <input type="radio" name="prioriadade" id="alta">
+            <label for="alta">Alta</label>
+        </fieldset>
+    </section>
+
     <main>
         <section aria-labelledby="titulo-coluna-1">
             <h2 id="titulo-coluna-1">A Fazer</h2>
@@ -21,6 +47,15 @@
                         <p>Prioriadade: Alta</p>
                     </article>
                 </li>
+                <li>
+                    <article>
+                        <h3>Atividade de Programação</h3>
+                        <p>Projeto: Fazer atividades no Canva Ulbra</p>
+                        <p>Responsavel: Andre</p>
+                        <p>Prazo: 30/08</p>
+                        <p>Prioriadade: Média</p>
+                    </article>
+                </li>
             </ul>
         </section>
 
@@ -29,30 +64,64 @@
             <ul>
                 <li>
                     <article>
-                        <h3>
-                            Atividade de BD
-                        </h3>
+                        <h3>Atividade Estrutura de Dados</h3>
+                        <p>Projeto: Montar a estrutura de uma árvore binária</p>
+                        <p>Responsavel: Andre</p>
+                        <p>Prazo: 19/08</p>
+                        <p>Prioridade: Média</p>
+                    </article>
+                </li>
+                <li>
+                    <article>
+                        <h3>Atividade de BD</h3>
                         <p>Projeto: Fazer os INSERTS no BD</p>
                         <p>Responsavel: Andre</p>
                         <p>Prazo: 28/08</p>
                         <p>Prioridade: Alta</p>
                     </article>
-
                 </li>
-
-
             </ul>
-
-
-        </section>
+          </section>
+        
         <section aria-labelledby=titulo-coluna-3>
-            <h2 id="titulo-coluna-3">Concluído</h2>
+            <h2 id="titulo-coluna-3">Em Revisão</h2>
             <ul>
                 <li>
                     <article>
-                        <h3>
-                            Atividade de Python
-                        </h3>
+                        <h3>Revisando código para prova</h3>
+                        <p>Projeto: Prova de Python</p>
+                        <p>Responsavel: André</p>
+                        <p>Prazo: 12/09</p>
+                        <p>Prioriadade: Alta</p>
+                    </article>
+                </li>
+                <li>
+                    <article>
+                        <h3>Revisando conteúdo para atividade avaliativa</h3>
+                        <p>Projeto: Atividade avaliativa de HTML</p>
+                        <p>Responsavel: André</p>
+                        <p>Prazo: 13/08</p>
+                        <p>Prioriadade: Alta</p>
+                    </article>
+                </li>
+            </ul>
+        </section>
+        
+        <section aria-labelledby=titulo-coluna-4>
+            <h2 id="titulo-coluna-4">Concluído</h2>
+            <ul>
+                <li>
+                    <article>
+                        <h3>Atividade de POO</h3>
+                        <p>Projeto: Exercicios de Python</p>
+                        <p>Responsavel: André</p>
+                        <p>Prazo: 12/08</p>
+                        <p>Prioriadade: Baixa</p>
+                    </article>
+                </li>
+                <li>
+                    <article>
+                        <h3>Atividade de Python</h3>
                         <p>Projeto: Exercicios de Python</p>
                         <p>Responsavel: André</p>
                         <p>Prazo: 12/08</p>
@@ -61,8 +130,7 @@
                 </li>
             </ul>
         </section>
-
-
     </main>
+    <footer>André Sepúlveda Pereira Carvalho - Desenvolvimento Frontend</footer>
 </body>
 </html>
