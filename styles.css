@@ -9,12 +9,17 @@
     --texto_principal:#2b2622;
     --borda: #e0dad3;
     --raio_borda: 15px;
+    --escala-pequena: 8px;
+    --escala-media: 20px;
+    --escala-grande: 40px;
 
 
 }
 
 #quadro-geral{
     display: grid;
+    grid-template-columns: repeat(4,1fr);
+    border-radius: var(--raio_borda);
 }
 .coluna{
     display: flex;
