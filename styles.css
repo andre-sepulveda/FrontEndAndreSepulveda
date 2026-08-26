@@ -2,7 +2,7 @@
 
 :root{
     --cor_fundo_cartao: #fdfcfb;
-    --cor_a_fazer: #8895a7;
+    --cor_a_fazer: #0b5cce;
     --cor_andamento: #e0a458;
     --cor_concluido: #588157;
     --cor_revisao: #c77dff;
@@ -17,16 +17,75 @@
 }
 
 #quadro-geral{
+    gap: var(--escala-grande);
     display: grid;
-    grid-template-columns: repeat(4,1fr);
+    grid-template-columns: 1fr;
     border-radius: var(--raio_borda);
+
+
 }
 .coluna{
+    gap: var(--escala-media);
     display: flex;
     flex-direction: column;
+    font-size: 1rem;
+    min-width: 0;
+
 }
 
 .article{
+    padding: var(--escala-pequena);
+    background-color: var(--cor_fundo_cartao);
+    color: var(--texto_principal);
     display: flex;
     flex-direction: column;
+    min-width: 0;
+    border-left: 4px solid transparent;
+
+
+}
+
+.prazo{
+    margin-top: auto;
+}
+
+.titulo-tarefa{
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    min-width: 0;
+    flex: 1;
+    
+}
+/*com essa resolucao, fica ruim para vizualizar o campo de titulo das tabelas, a descricao. Então, usei o @media para fazer de forma automatica.*/
+@media (min-width: 768px) {
+  #quadro-geral {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+h1{
+      font-size: clamp(1.5rem, 4vw, 2.5rem);
+}
+
+fieldset label {
+  display: inline-block;
+  padding: var(--escala-pequena);
+}
+#pesquisar-titulo{
+    padding: var(--escala-pequena);
+
+}
+
+#titulo-coluna-1 ~ ul .article {
+  border-left-color: var(--cor_a_fazer);
+}
+#titulo-coluna-2 ~ ul .article{
+    border-left-color: var(--cor_andamento);
+}
+#titulo-coluna-3 ~ ul .article{
+    border-left-color: var(--cor_revisao);
+}
+#titulo-coluna-4 ~ ul .article{
+    border-left-color: var(--cor_concluido);
 }
