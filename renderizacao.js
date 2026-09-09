@@ -7,10 +7,10 @@ export function criarCartao(tarefa) {
   titulo.textContent = tarefa.titulo;
   const prazo=document.createElement("p");
   prazo.className="prazo";
-  prazo.textContent=tarefa.prazo;
+  prazo.textContent="Prazo: "+ tarefa.prazo;
   const prioridade=document.createElement("p");
   prioridade.className="prioridade";
-  prioridade.textContent=tarefa.prioridade;
+  prioridade.textContent="Prioridade: " + tarefa.prioridade;
 
   cartao.append(titulo,prioridade,prazo);
   return cartao;
