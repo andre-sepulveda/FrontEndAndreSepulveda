@@ -15,7 +15,7 @@
     <section aria-label="Busca e Filtros">
         <label for="pesquisar-titulo">Pesquisar Titulo</label>
         <input id="pesquisar-titulo" type="search">
-        <button class="botao">Salvar</button>
+        <button class="botao" id="limpar-filtros">Limpar Filtros</button>
         <fieldset>
             <legend>Escolha o Status</legend>
             <input type="radio" name="status" id="a-fazer">
@@ -26,15 +26,19 @@
             <label for="em-revisao">Em Revisão</label>
             <input type="radio" name="status" id="concluido">
             <label for="concluido">Concluído</label>
+            <input type="radio" name="status" id="todos" checked>
+            <label for="todos">Todos</label>
         </fieldset>
         <fieldset>
             <legend>Escolha a Prioridade</legend>
-            <input type="radio" name="prioriadade" id="baixa">
+            <input type="radio" name="prioridade" id="baixa">
             <label for="baixa">Baixa</label>
-            <input type="radio" name="prioriadade" id="media">
+            <input type="radio" name="prioridade" id="media">
             <label for="media">Média</label>
-            <input type="radio" name="prioriadade" id="alta">
+            <input type="radio" name="prioridade" id="alta">
             <label for="alta">Alta</label>
+            <input type="radio" name="prioridade" id="todas" checked>
+            <label for="todas">Todas</label>
         </fieldset>
     </section>
 
@@ -64,6 +68,6 @@
         </section>
     </main>
     <footer>André Sepúlveda Pereira Carvalho - Desenvolvimento Frontend</footer>
-    <script type="module" src="/app.js"></script>
+    <script type="module" src="./app.js"></script>
 </body>
 </html>

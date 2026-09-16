@@ -1,5 +1,7 @@
 import { carregarTarefas } from "./api.js";
 import { renderizarEstado } from "./estados.js";
+import { derivarListaVisivel } from "./derivacao.js";
+import { renderizarTarefas } from "./renderizacao.js";
 
 async function iniciar() {
   renderizarEstado("carregando", null);
@@ -10,7 +12,9 @@ async function iniciar() {
     if (tarefas.length === 0) {
       renderizarEstado("vazio",tarefas);
     } else {
-      renderizarEstado("sucesso",tarefas);
+      estado.tarefas = tarefas;
+      estado.carregando = false;
+      atualizarTela();
     }
 
   } catch (erro) {
@@ -28,4 +32,58 @@ async function iniciar() {
   }
 }
 
+const estado = {
+  tarefas: [],
+  busca: "",
+  status: "todos",
+  prioridade: "todas",
+  ordenacao: "crescente",
+  carregando: true,
+  erro: null,
+};
+const quadro = document.querySelector("[data-quadro]");
+const regiaoStatus = document.querySelector("[role='status']");
+const campoBusca = document.querySelector("#pesquisar-titulo");
+
+
+
 iniciar();
+
+
+function atualizarTela() {
+  const lista = derivarListaVisivel(estado);
+  renderizarTarefas(lista, quadro);
+  regiaoStatus.textContent = lista.length + " de " + estado.tarefas.length + " tarefas";
+}
+
+campoBusca.addEventListener("input", (evento) => {
+  estado.busca = evento.currentTarget.value;
+  atualizarTela();
+});
+
+
+document.querySelectorAll('input[name="status"]').forEach((radio) => {
+  radio.addEventListener("change", (evento) => {
+    estado.status = evento.currentTarget.id;
+    atualizarTela();
+  });
+});
+
+document.querySelectorAll('input[name="prioridade"]').forEach((radio) => {
+  radio.addEventListener("change", (evento) => {
+    estado.prioridade = evento.currentTarget.id;
+    atualizarTela();
+  });
+});
+
+document.querySelector("#limpar-filtros").addEventListener("click", () => {
+  estado.busca = "";
+  estado.status = "todos";
+  estado.prioridade = "todas";
+
+  campoBusca.value = "";
+  document.querySelector('input[name="status"]#todos').checked = true;
+  document.querySelector('input[name="prioridade"]#todas').checked = true;
+
+  atualizarTela();
+});
