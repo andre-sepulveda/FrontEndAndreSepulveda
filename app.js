@@ -53,7 +53,12 @@ iniciar();
 function atualizarTela() {
   const lista = derivarListaVisivel(estado);
   renderizarTarefas(lista, quadro);
-  regiaoStatus.textContent = lista.length + " de " + estado.tarefas.length + " tarefas";
+
+  if (lista.length === 0) {
+    regiaoStatus.textContent = "Nenhum resultado. Altere ou limpe os critérios.";
+  } else {
+    regiaoStatus.textContent = lista.length + " de " + estado.tarefas.length + " tarefas";
+  }
 }
 
 campoBusca.addEventListener("input", (evento) => {
