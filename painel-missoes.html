@@ -1,0 +1,1010 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lista de Contratos</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bangers&family=Comic+Neue:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0c0c0f;
+    --surface: #1a1a1e;
+    --surface-alt: #232327;
+    --text: #f2f2f2;
+    --muted: #9a9a9f;
+    --border: #303035;
+    --vermelho: #e21f26;
+    --vermelho-escuro: #8f0f14;
+    --branco: #f5f5f5;
+
+    --c-a-fazer: #6b7280;
+    --c-andamento: #e21f26;
+    --c-revisao: #f2a900;
+    --c-concluida: #55565c;
+
+    --p-alta: #e21f26;
+    --p-media: #f2a900;
+    --p-baixa: #6b7280;
+  }
+
+  * { box-sizing: border-box; }
+  .sr-only {
+    position: absolute; width: 1px; height: 1px;
+    overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap;
+  }
+
+  body {
+    margin: 0;
+    font-family: "Comic Neue", -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    font-weight: 700;
+    background-color: var(--bg);
+    background-image:
+      radial-gradient(circle, rgba(255,255,255,0.05) 1px, transparent 1.3px),
+      radial-gradient(circle at 15% 0%, rgba(226,31,38,0.14), transparent 45%);
+    background-size: 6px 6px, auto;
+    background-repeat: repeat, no-repeat;
+    color: var(--text);
+    min-height: 100vh;
+    padding: 40px 20px 70px;
+  }
+
+  .fonte-impacto { font-family: "Bangers", "Segoe UI", cursive; letter-spacing: 0.03em; }
+
+  .cabecalho { position: relative; text-align: center; margin-bottom: 6px; }
+  .cabecalho::before {
+    content: "";
+    position: absolute;
+    top: 50%; left: 50%;
+    width: 340px; height: 340px;
+    transform: translate(-50%, -50%);
+    background: repeating-conic-gradient(from 0deg, var(--vermelho-escuro) 0deg 10deg, transparent 10deg 20deg);
+    opacity: 0.18;
+    border-radius: 50%;
+    z-index: -1;
+  }
+  .emblema {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 6px;
+  }
+  .cabecalho h1 {
+    font-size: clamp(2rem, 6vw, 3.2rem);
+    margin: 0 0 4px;
+    color: #ffe000;
+    -webkit-text-stroke: 2px #000;
+    text-shadow:
+      -2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000, 2px 2px 0 #000,
+      4px 4px 0 var(--vermelho), 6px 6px 0 #000;
+  }
+  .subtitulo { margin: 0; color: var(--muted); font-size: 0.95rem; }
+
+  .contador {
+    text-align: center;
+    margin: 18px auto 26px;
+    font-size: clamp(1.3rem, 4vw, 1.8rem);
+    color: var(--vermelho);
+  }
+  .contador span { color: var(--branco); }
+
+  .regiao-status {
+    text-align: center;
+    font-size: 0.9rem;
+    color: var(--muted);
+    margin: 0 auto 20px;
+    max-width: 900px;
+  }
+
+  .bancada {
+    max-width: 1000px;
+    margin: 0 auto 28px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .campo-busca { position: relative; flex: 1 1 220px; min-width: 0; }
+  .campo-busca svg { position: absolute; left: 13px; top: 50%; transform: translateY(-50%); color: var(--muted); }
+  .campo-busca input {
+    width: 100%;
+    font-size: 0.92rem;
+    padding: 10px 14px 10px 36px;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    background: var(--surface);
+    color: var(--text);
+  }
+  .campo-busca input::placeholder { color: var(--muted); }
+  .campo-busca input:focus-visible { outline: 2px solid var(--vermelho); outline-offset: 2px; }
+
+  .chip-row { display: flex; gap: 6px; flex-wrap: wrap; }
+  .chip {
+    border: 2px solid #000;
+    box-shadow: 2px 2px 0 #000;
+    background: var(--surface);
+    color: var(--text);
+    padding: 8px 14px;
+    border-radius: 999px;
+    font-size: 0.85rem;
+    cursor: pointer;
+    min-height: 24px;
+    display: inline-flex; align-items: center; gap: 6px;
+  }
+  .chip:focus-visible { outline: 2px solid var(--vermelho); outline-offset: 2px; }
+  .chip[aria-pressed="true"] { background: var(--vermelho); color: #fff; border-color: var(--vermelho); }
+  .chip svg { transition: transform 0.2s ease; }
+  .chip[aria-pressed="true"] svg { transform: rotate(90deg); }
+
+  .link-reiniciar {
+    background: none; border: none;
+    color: var(--muted);
+    font-size: 0.85rem;
+    cursor: pointer;
+    text-decoration: underline;
+    padding: 8px 4px;
+  }
+  .link-reiniciar:focus-visible { outline: 2px solid var(--vermelho); outline-offset: 2px; }
+  .link-reiniciar:hover { color: var(--text); }
+
+  .mural {
+    max-width: 1120px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 16px;
+    position: relative;
+    z-index: 1;
+  }
+  @media (min-width: 720px) { .mural { grid-template-columns: repeat(2, 1fr); } }
+  @media (min-width: 1080px) {
+    /* a partir daqui cabem as 4 colunas lado a lado sem espremer os cartões */
+    .mural { grid-template-columns: repeat(4, 1fr); }
+  }
+
+  .coluna {
+    background: var(--surface);
+    border: 2px solid #000;
+    box-shadow: 4px 4px 0 #000;
+    border-radius: 10px;
+    padding: 14px;
+    min-width: 0;
+  }
+  .coluna-header {
+    display: flex; align-items: center; gap: 8px;
+    padding-bottom: 10px; margin-bottom: 12px;
+    border-bottom: 2px solid var(--border);
+  }
+  .ponto-status { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+  .col-a-fazer .ponto-status { background: var(--c-a-fazer); }
+  .col-em-andamento .ponto-status { background: var(--c-andamento); }
+  .col-em-revisao .ponto-status { background: var(--c-revisao); }
+  .col-concluida .ponto-status { background: var(--c-concluida); }
+  .titulo-coluna {
+    font-family: "Bangers", cursive;
+    letter-spacing: 0.05em;
+    font-size: 1.1rem;
+    color: #ffe000;
+    -webkit-text-stroke: 1px #000;
+    text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000, 2px 2px 0 #000;
+  }
+  .contagem-coluna {
+    margin-left: auto;
+    background: var(--surface-alt);
+    color: var(--muted);
+    font-size: 0.75rem;
+    padding: 2px 9px;
+    border-radius: 999px;
+  }
+
+  .lista { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+  .vazio { color: var(--muted); font-size: 0.85rem; text-align: center; padding: 14px 4px; }
+
+  .cartao {
+    position: relative;
+    overflow: hidden;
+    background: var(--surface-alt);
+    border: 2px solid #000;
+    border-left: 5px solid var(--cor-prioridade, #000);
+    box-shadow: 3px 3px 0 #000;
+    border-radius: 8px;
+    padding: 12px 12px 10px;
+    min-width: 0;
+    transition: transform 0.15s ease;
+  }
+  .cartao:hover { transform: translateY(-2px); }
+  .cartao.concluida { border-left-color: var(--c-concluida); opacity: 0.85; }
+
+  .linha-topo { display: flex; align-items: flex-start; gap: 8px; }
+
+  .checkbox {
+    position: relative;
+    width: 20px; height: 20px;
+    border-radius: 50%;
+    border: 2px solid var(--border);
+    background: var(--surface);
+    cursor: pointer;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+  .checkbox::after {
+    content: "";
+    position: absolute; left: 5px; top: 4px;
+    width: 8px; height: 5px;
+    border-left: 2px solid #fff; border-bottom: 2px solid #fff;
+    transform: rotate(-45deg);
+    opacity: 0;
+  }
+  .checkbox[aria-pressed="true"] { background: var(--vermelho); border-color: var(--vermelho); }
+  .checkbox[aria-pressed="true"]::after { opacity: 1; }
+  .checkbox:focus-visible { outline: 2px solid var(--vermelho); outline-offset: 2px; }
+
+  .corpo-cartao { min-width: 0; flex: 1; }
+  .titulo-tarefa {
+    margin: 0 0 2px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    min-width: 0;
+  }
+  .cartao.concluida .titulo-tarefa { text-decoration: line-through; color: var(--muted); }
+  .projeto {
+    margin: 0;
+    font-size: 0.8rem;
+    color: var(--muted);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .rodape-cartao {
+    display: flex; align-items: center; justify-content: space-between; gap: 8px;
+    margin-top: 10px;
+    flex-wrap: wrap;
+  }
+  .rodape-esquerda { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+  .prazo-pill {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-size: 0.72rem;
+    padding: 3px 9px;
+    border-radius: 999px;
+  }
+  .selo-prioridade {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    background: #0c0c0f;
+    border: 2px solid #000;
+    box-shadow: 1.5px 1.5px 0 #000;
+    border-radius: 999px;
+    padding: 2px 8px 2px 3px;
+    font-family: "Bangers", cursive;
+    font-size: 0.68rem;
+    letter-spacing: 0.05em;
+  }
+  .selo-prioridade svg { width: 13px; height: 13px; flex-shrink: 0; }
+  .avatar {
+    width: 22px; height: 22px; border-radius: 50%;
+    background: var(--vermelho);
+    color: #fff;
+    font-size: 0.62rem; font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .corte {
+    position: absolute;
+    top: -30%;
+    left: -35%;
+    width: 170%;
+    height: 10px;
+    background: linear-gradient(90deg, transparent, #fff 40%, var(--vermelho) 62%, transparent);
+    transform: rotate(-16deg) translateX(-130%);
+    opacity: 0;
+    pointer-events: none;
+  }
+  .cartao.riscando .corte { animation: cortar 1.1s ease forwards; }
+  @keyframes cortar {
+    0%   { transform: rotate(-16deg) translateX(-130%); opacity: 1; }
+    70%  { opacity: 1; }
+    100% { transform: rotate(-16deg) translateX(130%); opacity: 0; }
+  }
+  .gota-sangue {
+    position: absolute;
+    width: 6px; height: 10px;
+    background: var(--vermelho);
+    border-radius: 50% 50% 50% 0;
+    transform: rotate(45deg);
+    opacity: 0.95;
+    animation: pingar 1.1s ease forwards;
+    pointer-events: none;
+  }
+  @keyframes pingar { to { transform: translateY(26px) rotate(45deg); opacity: 0; } }
+
+  .corte-fino {
+    position: absolute;
+    left: -35%;
+    width: 170%;
+    height: 22px;
+    background: linear-gradient(90deg, transparent, #fff 38%, var(--vermelho) 60%, transparent);
+    clip-path: polygon(
+      0% 50%, 8% 35.4%, 16% 44.8%, 24% 19.3%, 32% 38%, 40% 13%, 48% 33%, 56% 18%, 64% 40%, 72% 17.3%, 80% 44.8%, 88% 37.4%, 100% 50%,
+      100% 50%, 88% 50.6%, 80% 71.2%, 72% 54.7%, 64% 84%, 56% 62%, 48% 77%, 40% 57%, 32% 82%, 24% 56.7%, 16% 71.2%, 8% 48.6%, 0% 50%
+    );
+    transform: rotate(-16deg) translateX(-130%);
+    opacity: 0;
+    pointer-events: none;
+    filter: drop-shadow(0 0 1px rgba(0,0,0,0.7));
+  }
+  .corte-fino.riscar { animation: cortar 1.1s ease forwards; }
+
+  .buraco-tiro {
+    position: absolute;
+    width: 30px; height: 30px;
+    opacity: 0;
+    transform: scale(0.2);
+    pointer-events: none;
+  }
+  .buraco-tiro.estourar { animation: baterTiro 0.7s cubic-bezier(.3,1.6,.4,1) forwards; }
+  @keyframes baterTiro {
+    0%   { opacity: 0; transform: scale(0.2); }
+    60%  { opacity: 1; transform: scale(1.25); }
+    100% { opacity: 1; transform: scale(1); }
+  }
+  .flash-tiro {
+    position: absolute;
+    width: 34px; height: 34px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(255,220,150,0.9), transparent 70%);
+    opacity: 0;
+    pointer-events: none;
+  }
+  .flash-tiro.estourar { animation: clarao 0.5s ease forwards; }
+  @keyframes clarao {
+    0%   { opacity: 0; transform: scale(0.3); }
+    40%  { opacity: 1; transform: scale(1.5); }
+    100% { opacity: 0; transform: scale(1.8); }
+  }
+
+  .teia {
+    position: absolute;
+    width: 64px; height: 64px;
+    opacity: 0;
+    transform: scale(0.5) rotate(-8deg);
+    pointer-events: none;
+  }
+  .teia.tecendo { animation: tecer 2s ease forwards; }
+  @keyframes tecer {
+    0%   { opacity: 0; transform: scale(0.5) rotate(-8deg); }
+    25%  { opacity: 1; transform: scale(1) rotate(-8deg); }
+    78%  { opacity: 1; }
+    100% { opacity: 0; transform: scale(1.08) rotate(-8deg); }
+  }
+  .teia-grande {
+    position: absolute;
+    top: 50%; left: 50%;
+    width: 300px; height: 300px;
+    transform: translate(-50%, -50%);
+    opacity: 0.4;
+    z-index: 0;
+  }
+
+  .rodape {
+    text-align: center;
+    color: var(--muted);
+    font-size: 0.78rem;
+    margin-top: 32px;
+  }
+
+  .corte-tela {
+    position: fixed;
+    top: 48%;
+    left: -40%;
+    width: 220%;
+    height: 18px;
+    background: linear-gradient(90deg, transparent, #fff 35%, var(--vermelho) 55%, transparent);
+    transform: rotate(-14deg) translateX(-140%);
+    z-index: 75;
+    pointer-events: none;
+    opacity: 0;
+  }
+  .corte-tela.ativo { animation: cortarTela 1.3s ease forwards; }
+  @keyframes cortarTela {
+    0%   { opacity: 1; transform: rotate(-14deg) translateX(-140%); }
+    55%  { opacity: 1; }
+    100% { opacity: 0; transform: rotate(-14deg) translateX(140%); }
+  }
+
+  .chuva-sangue { position: fixed; inset: 0; pointer-events: none; overflow: hidden; z-index: 60; }
+  .pingo { position: absolute; top: -30px; width: 9px; height: 15px; background: var(--vermelho); border-radius: 50% 50% 50% 0; opacity: 0.9; animation: cair linear forwards; }
+  @keyframes cair { to { transform: translateY(110vh) rotate(45deg); opacity: 0.15; } }
+
+  .grande-final { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; z-index: 80; pointer-events: none; }
+  .grande-final[hidden] { display: none; }
+  .selo {
+    position: relative;
+    z-index: 1;
+    background: var(--surface);
+    border: 3px solid #000;
+    box-shadow: 6px 6px 0 var(--vermelho);
+    border-radius: 14px;
+    padding: 22px 36px;
+    text-align: center;
+    transform: scale(0) rotate(-3deg);
+    animation: selar 0.8s cubic-bezier(.2,1.4,.4,1) forwards;
+    overflow: visible;
+  }
+  .selo-conteudo.tremer { animation: tremer 0.25s ease; }
+  @keyframes tremer {
+    0%, 100% { transform: translate(0, 0); }
+    25% { transform: translate(-4px, 2px); }
+    50% { transform: translate(4px, -2px); }
+    75% { transform: translate(-2px, 1px); }
+  }
+  .selo strong {
+    display: block;
+    font-family: "Bangers", cursive;
+    letter-spacing: 0.06em;
+    font-size: clamp(1.6rem, 5vw, 2.4rem);
+    color: #ffe000;
+    -webkit-text-stroke: 2px #000;
+    text-shadow:
+      -2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000, 2px 2px 0 #000,
+      4px 4px 0 var(--vermelho);
+    margin-bottom: 6px;
+  }
+  .selo span { color: var(--muted); font-size: 0.9rem; }
+  @keyframes selar {
+    0%   { transform: scale(0.5) rotate(-3deg); opacity: 0; }
+    70%  { transform: scale(1.06) rotate(-3deg); opacity: 1; }
+    100% { transform: scale(1) rotate(-3deg); opacity: 1; }
+  }
+
+  .estrondo {
+    position: absolute;
+    background: #ffe000;
+    color: #000;
+    font-family: "Bangers", cursive;
+    font-size: 1rem;
+    letter-spacing: 0.03em;
+    padding: 10px 14px;
+    clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+    opacity: 0;
+    transform: scale(0.4) rotate(-8deg);
+    pointer-events: none;
+    text-align: center;
+    line-height: 1;
+    z-index: 3;
+  }
+  .estrondo.mostrar { animation: estourarTexto 1.4s ease forwards; }
+  @keyframes estourarTexto {
+    0%   { opacity: 0; transform: scale(0.3) rotate(-8deg); }
+    25%  { opacity: 1; transform: scale(1.15) rotate(-8deg); }
+    75%  { opacity: 1; transform: scale(1) rotate(-8deg); }
+    100% { opacity: 0; transform: scale(1.05) rotate(-8deg); }
+  }
+</style>
+</head>
+<body>
+
+<header class="cabecalho">
+  <span class="emblema" aria-hidden="true">
+    <svg width="50" height="50" viewBox="0 0 48 48" overflow="visible">
+      <path d="M25.6,5.6 C35.1,5.6 42.1,13.6 42.1,24.6 C42.1,34.1 36.1,42.1 25.6,45.6 C15.1,42.1 9.1,34.1 9.1,24.6 C9.1,13.6 16.1,5.6 25.6,5.6 Z"
+            fill="#000"></path>
+      <path d="M24,4 C33.5,4 40.5,12 40.5,23 C40.5,32.5 34.5,40.5 24,44 C13.5,40.5 7.5,32.5 7.5,23 C7.5,12 14.5,4 24,4 Z"
+            fill="#141416" stroke="#000" stroke-width="3.6"></path>
+      <path d="M24,4 C33.5,4 40.5,12 40.5,23 C40.5,32.5 34.5,40.5 24,44 C13.5,40.5 7.5,32.5 7.5,23 C7.5,12 14.5,4 24,4 Z"
+            fill="none" stroke="#e21f26" stroke-width="2"></path>
+      <line x1="24" y1="7" x2="24" y2="41" stroke="#8f0f14" stroke-width="1.4" stroke-dasharray="2.4 2.4"></line>
+      <path d="M9.6,15 C11,20 11.4,27 9.9,32.5" fill="none" stroke="#000" stroke-width="1" stroke-linecap="round" opacity="0.55"></path>
+      <path d="M38.4,15 C37,20 36.6,27 38.1,32.5" fill="none" stroke="#000" stroke-width="1" stroke-linecap="round" opacity="0.55"></path>
+      <polygon points="12.5,20.5 22,18 18.4,27.5" fill="#f5f5f5" stroke="#000" stroke-width="1.1"></polygon>
+      <polygon points="35.5,20.5 26,18 29.6,27.5" fill="#f5f5f5" stroke="#000" stroke-width="1.1"></polygon>
+    </svg>
+  </span>
+  <h1 class="fonte-impacto">Lista de Contratos</h1>
+  <p class="subtitulo">cumpra o serviço e a lâmina risca o alvo da lista</p>
+</header>
+
+<p class="contador fonte-impacto" id="contador"></p>
+
+<p role="status" aria-live="polite" class="regiao-status" id="regiao-status"></p>
+
+<section class="bancada" aria-label="Busca e filtros">
+  <div class="campo-busca">
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+      <circle cx="11" cy="11" r="7"></circle>
+      <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+    </svg>
+    <label for="busca-titulo" class="sr-only">Procurar contrato pelo título</label>
+    <input id="busca-titulo" type="search" placeholder="procurar por título">
+  </div>
+
+  <div class="chip-row" role="group" aria-label="Filtrar por prioridade">
+    <button class="chip" data-prioridade="todas" aria-pressed="true" type="button">todas</button>
+    <button class="chip" data-prioridade="alta" aria-pressed="false" type="button">alta</button>
+    <button class="chip" data-prioridade="media" aria-pressed="false" type="button">média</button>
+    <button class="chip" data-prioridade="baixa" aria-pressed="false" type="button">baixa</button>
+  </div>
+
+  <button id="botao-ordenar" class="chip" type="button" aria-pressed="false">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+      <path d="M21 6.5a3.5 3.5 0 0 0-7 0v10a2.5 2.5 0 0 0 5 0V8"></path>
+    </svg>
+    ordenar por prazo
+  </button>
+
+  <button id="botao-reiniciar" class="link-reiniciar" type="button">reiniciar contratos</button>
+</section>
+
+<main class="mural" data-quadro id="quadro"></main>
+
+<p class="rodape">projeto original: To-do Acadêmico — releitura livre, sem framework, HTML/CSS/JS puro</p>
+
+<div class="corte-tela" id="corte-tela" aria-hidden="true"></div>
+<div class="chuva-sangue" id="chuva-sangue" aria-hidden="true"></div>
+<div id="grande-final" class="grande-final" hidden>
+  <span class="teia-grande" id="teia-grande" aria-hidden="true"></span>
+  <div class="selo">
+    <div class="selo-conteudo">
+      <strong>Contrato cumprido</strong>
+      <span>todos os alvos foram eliminados da lista</span>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  const dadosOriginais = [
+    { id: "t1", titulo: "Atividade FrontEnd", projeto: "Página inicial do projeto", status: "a-fazer", prioridade: "alta", prazo: "2026-08-11" },
+    { id: "t2", titulo: "Atividade de Programação", projeto: "Exercícios Canva Ulbra", status: "a-fazer", prioridade: "media", prazo: "2026-08-20" },
+    { id: "t3", titulo: "Estrutura de Dados", projeto: "Árvore binária", status: "em-andamento", prioridade: "media", prazo: "2026-08-19" },
+    { id: "t4", titulo: "Atividade de BD", projeto: "INSERTs no banco", status: "em-andamento", prioridade: "alta", prazo: "2026-08-28" },
+    { id: "t5", titulo: "Revisar código da prova", projeto: "Prova de Python", status: "em-revisao", prioridade: "alta", prazo: "2026-09-12" },
+    { id: "t6", titulo: "Revisar atividade avaliativa", projeto: "Avaliativa de HTML", status: "em-revisao", prioridade: "alta", prazo: "2026-08-13" },
+    { id: "t7", titulo: "Atividade de POO", projeto: "Exercícios de Python", status: "concluida", prioridade: "baixa", prazo: "2026-08-12" },
+    { id: "t8", titulo: "Atividade de Python", projeto: "Exercícios de Python", status: "concluida", prioridade: "baixa", prazo: "2026-08-14" }
+  ];
+
+  let tarefas = dadosOriginais.map((t) => Object.assign({}, t));
+
+  const colunas = [
+    { status: "a-fazer", titulo: "Contratos" },
+    { status: "em-andamento", titulo: "Em Campo" },
+    { status: "em-revisao", titulo: "Sob Mira" },
+    { status: "concluida", titulo: "Eliminados" }
+  ];
+
+  const prioridadeCor = { alta: "#e21f26", media: "#f2a900", baixa: "#6b7280" };
+  const prioridadeRotulo = { alta: "Prioridade alta", media: "Prioridade média", baixa: "Prioridade baixa" };
+  const prioridadeSigla = { alta: "ALTA", media: "MÉDIA", baixa: "BAIXA" };
+
+  function svgAlvo() {
+    return '<svg viewBox="0 0 24 24" fill="none">' +
+      '<circle cx="12" cy="12" r="8.5" stroke="currentColor" stroke-width="2"></circle>' +
+      '<circle cx="12" cy="12" r="4" stroke="currentColor" stroke-width="2"></circle>' +
+      '<circle cx="12" cy="12" r="1.4" fill="currentColor"></circle>' +
+      '<line x1="12" y1="0.5" x2="12" y2="4" stroke="currentColor" stroke-width="2"></line>' +
+      '<line x1="12" y1="20" x2="12" y2="23.5" stroke="currentColor" stroke-width="2"></line>' +
+      '<line x1="0.5" y1="12" x2="4" y2="12" stroke="currentColor" stroke-width="2"></line>' +
+      '<line x1="20" y1="12" x2="23.5" y2="12" stroke="currentColor" stroke-width="2"></line>' +
+      '</svg>';
+  }
+
+  const meses = ["jan","fev","mar","abr","mai","jun","jul","ago","set","out","nov","dez"];
+  function formatarPrazo(iso) {
+    const p = iso.split("-");
+    return p[2] + " " + meses[parseInt(p[1], 10) - 1];
+  }
+
+  const estado = { busca: "", prioridade: "todas", ordenarPorPrazo: false, finalizado: false };
+
+  function filtrarPorBusca(lista, busca) {
+    const termo = busca.trim().toLowerCase();
+    if (termo === "") return lista;
+    return lista.filter((t) => t.titulo.toLowerCase().includes(termo));
+  }
+  function filtrarPorPrioridade(lista, prioridade) {
+    return lista.filter((t) => prioridade === "todas" || t.prioridade === prioridade);
+  }
+  function ordenarPorPrazo(lista) {
+    const copia = [...lista];
+    copia.sort((a, b) => a.prazo.localeCompare(b.prazo));
+    return copia;
+  }
+  function derivarListaVisivel() {
+    let resultado = tarefas;
+    resultado = filtrarPorBusca(resultado, estado.busca);
+    resultado = filtrarPorPrioridade(resultado, estado.prioridade);
+    if (estado.ordenarPorPrazo) resultado = ordenarPorPrazo(resultado);
+    return resultado;
+  }
+
+  function criarCartao(tarefa) {
+    const li = document.createElement("li");
+
+    const cartao = document.createElement("article");
+    cartao.className = "cartao" + (tarefa.status === "concluida" ? " concluida" : "");
+    cartao.dataset.id = tarefa.id;
+    cartao.style.setProperty("--cor-prioridade", prioridadeCor[tarefa.prioridade]);
+
+    const corte = document.createElement("span");
+    corte.className = "corte";
+    corte.setAttribute("aria-hidden", "true");
+    cartao.append(corte);
+
+    const linhaTopo = document.createElement("div");
+    linhaTopo.className = "linha-topo";
+
+    const checkbox = document.createElement("button");
+    checkbox.type = "button";
+    checkbox.className = "checkbox";
+    const concluida = tarefa.status === "concluida";
+    checkbox.setAttribute("aria-pressed", String(concluida));
+    checkbox.setAttribute("aria-label", concluida ? "Reabrir contrato" : "Marcar contrato como eliminado");
+
+    const corpo = document.createElement("div");
+    corpo.className = "corpo-cartao";
+
+    const titulo = document.createElement("h3");
+    titulo.className = "titulo-tarefa";
+    titulo.textContent = tarefa.titulo;
+
+    const projeto = document.createElement("p");
+    projeto.className = "projeto";
+    projeto.textContent = tarefa.projeto;
+    projeto.title = prioridadeRotulo[tarefa.prioridade];
+
+    corpo.append(titulo, projeto);
+    linhaTopo.append(checkbox, corpo);
+    cartao.append(linhaTopo);
+
+    const rodape = document.createElement("div");
+    rodape.className = "rodape-cartao";
+
+    const esquerda = document.createElement("div");
+    esquerda.className = "rodape-esquerda";
+
+    const selo = document.createElement("span");
+    selo.className = "selo-prioridade";
+    selo.style.color = prioridadeCor[tarefa.prioridade];
+    selo.title = prioridadeRotulo[tarefa.prioridade];
+    selo.innerHTML = svgAlvo() + '<span style="color:#fff">' + prioridadeSigla[tarefa.prioridade] + "</span>";
+
+    const prazo = document.createElement("span");
+    prazo.className = "prazo-pill";
+    prazo.textContent = formatarPrazo(tarefa.prazo);
+
+    esquerda.append(selo, prazo);
+
+    const avatar = document.createElement("span");
+    avatar.className = "avatar";
+    avatar.textContent = "AN";
+    avatar.title = "Andre";
+    rodape.append(esquerda, avatar);
+    cartao.append(rodape);
+
+    li.append(cartao);
+    return li;
+  }
+
+  const quadro = document.querySelector("[data-quadro]");
+  const regiaoStatus = document.querySelector("#regiao-status");
+  const contador = document.querySelector("#contador");
+
+  function renderizar() {
+    const visiveis = derivarListaVisivel();
+    quadro.replaceChildren();
+
+    colunas.forEach((colDef) => {
+      const secao = document.createElement("section");
+      secao.className = "coluna col-" + colDef.status;
+
+      const header = document.createElement("div");
+      header.className = "coluna-header";
+      const ponto = document.createElement("span");
+      ponto.className = "ponto-status";
+      const tituloCol = document.createElement("span");
+      tituloCol.className = "titulo-coluna";
+      tituloCol.textContent = colDef.titulo;
+      const tarefasColuna = visiveis.filter((t) => t.status === colDef.status);
+      const contagem = document.createElement("span");
+      contagem.className = "contagem-coluna";
+      contagem.textContent = tarefasColuna.length;
+      header.append(ponto, tituloCol, contagem);
+      secao.append(header);
+
+      if (tarefasColuna.length === 0) {
+        const vazio = document.createElement("p");
+        vazio.className = "vazio";
+        vazio.textContent = "nada por aqui";
+        secao.append(vazio);
+      } else {
+        const lista = document.createElement("ul");
+        lista.className = "lista";
+        lista.dataset.listaStatus = colDef.status;
+        const itens = tarefasColuna.map((t) => criarCartao(t));
+        lista.replaceChildren(...itens);
+        secao.append(lista);
+      }
+
+      quadro.append(secao);
+    });
+
+    if (!estado.finalizado) {
+      regiaoStatus.textContent = visiveis.length + " de " + tarefas.length + " contratos visíveis";
+    }
+
+    const concluidas = tarefas.filter((t) => t.status === "concluida").length;
+    contador.innerHTML = "<span>" + concluidas + "</span> de " + tarefas.length + " eliminados";
+  }
+
+  function espirrarSangue(cartaoEl) {
+    for (let i = 0; i < 3; i++) {
+      const gota = document.createElement("span");
+      gota.className = "gota-sangue";
+      gota.style.left = (20 + Math.random() * 60) + "%";
+      gota.style.top = (30 + Math.random() * 20) + "%";
+      gota.style.animationDelay = (i * 0.06) + "s";
+      cartaoEl.append(gota);
+      gota.addEventListener("animationend", () => gota.remove());
+    }
+  }
+
+  function pontosAnel(cx, cy, raio, pontas) {
+    const pts = [];
+    for (let i = 0; i < pontas; i++) {
+      const ang = (Math.PI * 2 / pontas) * i - Math.PI / 2;
+      pts.push((cx + raio * Math.cos(ang)).toFixed(1) + "," + (cy + raio * Math.sin(ang)).toFixed(1));
+    }
+    return pts.join(" ");
+  }
+
+  function svgTeia() {
+    const cx = 32, cy = 32, pontas = 8;
+    let raios = [14, 24, 34];
+    let spokes = "";
+    for (let i = 0; i < pontas; i++) {
+      const ang = (Math.PI * 2 / pontas) * i - Math.PI / 2;
+      const x = (cx + 40 * Math.cos(ang)).toFixed(1);
+      const y = (cy + 40 * Math.sin(ang)).toFixed(1);
+      spokes += '<line x1="' + cx + '" y1="' + cy + '" x2="' + x + '" y2="' + y + '" stroke="rgba(255,255,255,0.8)" stroke-width="1"></line>';
+    }
+    let aneis = "";
+    raios.forEach((r) => {
+      aneis += '<polygon points="' + pontosAnel(cx, cy, r, pontas) + '" fill="none" stroke="rgba(255,255,255,0.75)" stroke-width="1"></polygon>';
+    });
+    return '<svg viewBox="0 0 64 64" width="100%" height="100%">' + spokes + aneis + '</svg>';
+  }
+
+  function svgBuracoTiro() {
+    const cx = 16, cy = 16;
+    let rachaduras = "";
+    for (let i = 0; i < 6; i++) {
+      const ang = (Math.PI * 2 / 6) * i + Math.random() * 0.3;
+      const comprimento = 9 + Math.random() * 6;
+      const x = (cx + comprimento * Math.cos(ang)).toFixed(1);
+      const y = (cy + comprimento * Math.sin(ang)).toFixed(1);
+      rachaduras += '<line x1="' + cx + '" y1="' + cy + '" x2="' + x + '" y2="' + y + '" stroke="#111" stroke-width="1.4"></line>';
+    }
+    return '<svg viewBox="0 0 32 32" width="100%" height="100%">' +
+      '<circle cx="' + cx + '" cy="' + cy + '" r="7" fill="#141414"></circle>' +
+      rachaduras +
+      '<circle cx="' + cx + '" cy="' + cy + '" r="7" fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="1"></circle>' +
+      '</svg>';
+  }
+
+  function efeitoGarra(cartaoEl) {
+    for (let i = 0; i < 3; i++) {
+      const el = document.createElement("span");
+      el.className = "corte-fino";
+      el.style.top = (32 + i * 18) + "%";
+      el.style.animationDelay = (i * 0.05) + "s";
+      cartaoEl.append(el);
+      window.requestAnimationFrame(() => el.classList.add("riscar"));
+      el.addEventListener("animationend", () => el.remove());
+    }
+  }
+
+  function efeitoTiro(cartaoEl) {
+    const flash = document.createElement("span");
+    flash.className = "flash-tiro";
+    const buraco = document.createElement("span");
+    buraco.className = "buraco-tiro";
+    buraco.innerHTML = svgBuracoTiro();
+    const x = 15 + Math.random() * 60;
+    const y = 20 + Math.random() * 40;
+    flash.style.left = x + "%"; flash.style.top = y + "%";
+    buraco.style.left = (x + 2) + "%"; buraco.style.top = (y + 2) + "%";
+    cartaoEl.append(flash, buraco);
+    window.requestAnimationFrame(() => { flash.classList.add("estourar"); buraco.classList.add("estourar"); });
+    flash.addEventListener("animationend", () => flash.remove());
+    setTimeout(() => buraco.remove(), 2200);
+  }
+
+  function efeitoTeia(cartaoEl) {
+    const teia = document.createElement("span");
+    teia.className = "teia";
+    teia.innerHTML = svgTeia();
+    teia.style.left = (10 + Math.random() * 40) + "%";
+    teia.style.top = (10 + Math.random() * 30) + "%";
+    cartaoEl.append(teia);
+    window.requestAnimationFrame(() => teia.classList.add("tecendo"));
+    teia.addEventListener("animationend", () => teia.remove());
+  }
+
+  function efeitoGarraTela() {
+    for (let i = 0; i < 3; i++) {
+      const el = document.createElement("span");
+      el.className = "corte-fino";
+      el.style.position = "fixed";
+      el.style.top = (42 + i * 8) + "%";
+      el.style.zIndex = "76";
+      el.style.animationDelay = (i * 0.05) + "s";
+      document.body.append(el);
+      window.requestAnimationFrame(() => el.classList.add("riscar"));
+      el.addEventListener("animationend", () => el.remove());
+    }
+  }
+
+  function efeitoBuracosTela() {
+    for (let i = 0; i < 6; i++) {
+      const buraco = document.createElement("span");
+      buraco.className = "buraco-tiro";
+      buraco.style.position = "fixed";
+      buraco.style.left = (10 + Math.random() * 80) + "vw";
+      buraco.style.top = (15 + Math.random() * 60) + "vh";
+      buraco.style.zIndex = "76";
+      buraco.innerHTML = svgBuracoTiro();
+      document.body.append(buraco);
+      window.requestAnimationFrame(() => buraco.classList.add("estourar"));
+      setTimeout(() => buraco.remove(), 3600);
+    }
+  }
+
+  function efeitoTiroTitulo() {
+    const selo = document.querySelector(".selo");
+    const conteudo = selo.querySelector(".selo-conteudo");
+    const palavras = ["BANG!", "POW!", "BUM!", "PA-PUM!"];
+    const totalTiros = 7;
+    for (let i = 0; i < totalTiros; i++) {
+      setTimeout(() => {
+        const buraco = document.createElement("span");
+        buraco.className = "buraco-tiro";
+        buraco.innerHTML = svgBuracoTiro();
+        buraco.style.left = (8 + Math.random() * 82) + "%";
+        buraco.style.top = (10 + Math.random() * 75) + "%";
+        buraco.style.zIndex = "2";
+        selo.append(buraco);
+        window.requestAnimationFrame(() => buraco.classList.add("estourar"));
+        setTimeout(() => buraco.remove(), 2600);
+
+        conteudo.classList.remove("tremer");
+        void conteudo.offsetWidth;
+        conteudo.classList.add("tremer");
+
+        if (i % 2 === 0) {
+          const estrondo = document.createElement("span");
+          estrondo.className = "estrondo";
+          estrondo.textContent = palavras[Math.floor(Math.random() * palavras.length)];
+          estrondo.style.left = (Math.random() * 60) + "%";
+          estrondo.style.top = (Math.random() * 55) + "%";
+          selo.append(estrondo);
+          window.requestAnimationFrame(() => estrondo.classList.add("mostrar"));
+          setTimeout(() => estrondo.remove(), 1600);
+        }
+      }, i * 260);
+    }
+  }
+
+  function alternarConclusao(tarefa, elementoCartao, botao) {
+    if (tarefa.status !== "concluida") {
+      tarefa.statusAnterior = tarefa.status;
+      elementoCartao.classList.add("riscando");
+      espirrarSangue(elementoCartao);
+      const efeitosExtras = [efeitoGarra, efeitoTiro, efeitoTeia];
+      efeitosExtras[Math.floor(Math.random() * efeitosExtras.length)](elementoCartao);
+      botao.setAttribute("aria-pressed", "true");
+      setTimeout(() => {
+        tarefa.status = "concluida";
+        renderizar();
+        checarFinal();
+      }, 900);
+    } else {
+      tarefa.status = tarefa.statusAnterior || "em-revisao";
+      renderizar();
+    }
+  }
+
+  quadro.addEventListener("click", (evento) => {
+    const botao = evento.target.closest(".checkbox");
+    if (!botao || !quadro.contains(botao)) return;
+    const cartaoEl = botao.closest("[data-id]");
+    const tarefa = tarefas.find((t) => t.id === cartaoEl.dataset.id);
+    if (!tarefa) return;
+    alternarConclusao(tarefa, cartaoEl, botao);
+  });
+
+  document.querySelector("#busca-titulo").addEventListener("input", (evento) => {
+    estado.busca = evento.currentTarget.value;
+    renderizar();
+  });
+
+  document.querySelectorAll(".chip[data-prioridade]").forEach((botao) => {
+    botao.addEventListener("click", (evento) => {
+      estado.prioridade = evento.currentTarget.dataset.prioridade;
+      document.querySelectorAll(".chip[data-prioridade]").forEach((b) => b.setAttribute("aria-pressed", "false"));
+      evento.currentTarget.setAttribute("aria-pressed", "true");
+      renderizar();
+    });
+  });
+
+  document.querySelector("#botao-ordenar").addEventListener("click", (evento) => {
+    estado.ordenarPorPrazo = !estado.ordenarPorPrazo;
+    evento.currentTarget.setAttribute("aria-pressed", String(estado.ordenarPorPrazo));
+    renderizar();
+  });
+
+  const cortetela = document.querySelector("#corte-tela");
+  const chuvaSangue = document.querySelector("#chuva-sangue");
+  function soltarSangue() {
+    for (let i = 0; i < 34; i++) {
+      const pingo = document.createElement("span");
+      pingo.className = "pingo";
+      pingo.style.left = Math.random() * 100 + "vw";
+      pingo.style.animationDuration = (2.2 + Math.random() * 1.6) + "s";
+      pingo.style.animationDelay = (Math.random() * 0.5) + "s";
+      pingo.addEventListener("animationend", () => pingo.remove());
+      chuvaSangue.append(pingo);
+    }
+  }
+
+  const grandeFinal = document.querySelector("#grande-final");
+  function checarFinal() {
+    const todasFeitas = tarefas.every((t) => t.status === "concluida");
+    if (todasFeitas && !estado.finalizado) {
+      estado.finalizado = true;
+      regiaoStatus.textContent = "Contrato cumprido! Todos os alvos foram eliminados.";
+      cortetela.classList.remove("ativo");
+      window.requestAnimationFrame(() => cortetela.classList.add("ativo"));
+      efeitoGarraTela();
+      efeitoBuracosTela();
+      soltarSangue();
+      grandeFinal.hidden = false;
+      setTimeout(efeitoTiroTitulo, 500);
+      setTimeout(() => { grandeFinal.hidden = true; cortetela.classList.remove("ativo"); }, 7200);
+    } else if (!todasFeitas) {
+      estado.finalizado = false;
+    }
+  }
+
+  document.querySelector("#botao-reiniciar").addEventListener("click", () => {
+    tarefas = dadosOriginais.map((t) => Object.assign({}, t));
+    estado.busca = "";
+    estado.prioridade = "todas";
+    estado.ordenarPorPrazo = false;
+    estado.finalizado = false;
+    document.querySelector("#busca-titulo").value = "";
+    document.querySelectorAll(".chip[data-prioridade]").forEach((b) => b.setAttribute("aria-pressed", b.dataset.prioridade === "todas" ? "true" : "false"));
+    document.querySelector("#botao-ordenar").setAttribute("aria-pressed", "false");
+    grandeFinal.hidden = true;
+    chuvaSangue.replaceChildren();
+    renderizar();
+  });
+
+  document.querySelector("#teia-grande").innerHTML = svgTeia();
+
+  renderizar();
+})();
+</script>
+</body>
+</html>
